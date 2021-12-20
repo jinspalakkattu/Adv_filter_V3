@@ -5,6 +5,7 @@ import logging.config
 logging.config.fileConfig('logging.conf')
 logging.getLogger().setLevel(logging.ERROR)
 
+import pyromod.listen
 from pyrogram import Client, __version__
 from pyrogram.raw.all import layer
 from database.ia_filterdb import Media
@@ -40,6 +41,3 @@ class Bot(Client):
         await super().stop()
         print("Bot stopped. Bye.")
 
-
-app = Bot()
-app.run()

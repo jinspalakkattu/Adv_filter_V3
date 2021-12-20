@@ -1,8 +1,11 @@
 import os
 import logging
 import random
+import asyncio
 from Script import script
 from pyrogram import Client, filters
+from plugins.helper_func import decode
+from database.batch_db import get_batch
 from pyrogram.errors.exceptions.bad_request_400 import ChatAdminRequired
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from database.ia_filterdb import Media, get_file_details
@@ -58,6 +61,36 @@ async def start(client, message):
         return
     file_id = message.command[1]
     print(file_id)
+    string = await decode(file_id)
+    argument = string.split("-")
+    grp_id = f"-{argument[3]}"
+    unique_id, f_id, file_ref, caption = await get_batch("Eva-V3", file_id)
+
+    if unique_id:
+        temp_msg = await message.reply("Please wait...")
+        file_args = f_id.split("#")
+        cap_args = caption.split("#")
+        i = 0
+        await asyncio.sleep(2)
+        await temp_msg.delete()
+        for b_file in file_args:
+            f_caption = cap_args[i]
+            if f_caption is None:
+                f_caption = ""
+            i += 1
+            try:
+                await client.send_cached_media(
+                    chat_id=message.from_user.id,
+                    file_id=b_file,
+                    caption=f_caption,
+                    parse_mode="html"
+                )
+            except Exception as err:
+                return await message.reply(f"{str(err)}")
+            await asyncio.sleep(1)
+
+        return
+
     files = (await get_file_details(file_id))[0]
     title = files.file_name
     size=get_size(files.file_size)
