@@ -108,7 +108,7 @@ async def batch_file(client: Client, message):
 
     string = f"get-{f_msg_id}-{s_msg_id}-{abs(grp_id)}"
     base64_string = await encode(string)
-    link = f"https://t.me/{temp.U_NAME}?start={base64_string}"
+    link = f"https://t.me/{temp.ME}?start={base64_string}"
 
     async with lock:
         try:
